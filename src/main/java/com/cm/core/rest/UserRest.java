@@ -32,7 +32,7 @@ public class UserRest {
         return userService.addUser(user);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/")
     public User updateUser(@PathVariable String id, @RequestBody User updateUser) {
         return userService.updateUser(new ObjectId(id), updateUser);
     }
