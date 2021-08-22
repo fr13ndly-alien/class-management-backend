@@ -10,20 +10,18 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.util.List;
 
 @Getter @Setter @ToString
-@Document(collection = "user")
+@Document(collection = "centre")
 public class Centre {
     @Field(name = "_id")
     private ObjectId id;
     private String name;
-    private ObjectId admin;
-    private List<ObjectId> teachers;
+    private String adminId; // should be ObjectId
+    private List<String> teacherIds;
 
-    // and further parameters
     public Centre(String name, String adminId, List<String> teacherIds) {
         this.id = new ObjectId();
         this.name = name;
-        this.admin = new ObjectId(adminId);
-        for (String teacherId: teacherIds)
-            teachers.add(new ObjectId(teacherId));
+        this.adminId = adminId;
+        this.teacherIds = teacherIds;
     }
 }
