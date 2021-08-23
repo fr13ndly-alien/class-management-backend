@@ -12,8 +12,8 @@ public class Schedule {
     private int mm;
     private int minDuration = 90;
 
-    public Schedule(Weekday weekday, int hh, int mm) {
-        this.day = weekday;
+    public Schedule(Weekday day, int hh, int mm) {
+        this.day = day;
         this.hh = hh;
         this.mm = mm;
     }

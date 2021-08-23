@@ -2,10 +2,8 @@ package com.cm.core.rest;
 
 
 import com.cm.core.entity.Centre;
-import com.cm.core.entity.User;
 import com.cm.core.service.CentreService;
 import com.cm.core.service.UserService;
-import com.sun.deploy.net.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

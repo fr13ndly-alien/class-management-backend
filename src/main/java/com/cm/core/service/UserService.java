@@ -1,7 +1,6 @@
 package com.cm.core.service;
 
 import com.cm.core.entity.User;
-import com.cm.core.enumeration.UserRole;
 import com.cm.core.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
