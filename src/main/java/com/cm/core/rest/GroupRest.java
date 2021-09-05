@@ -6,11 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/v1/group")
+@RequestMapping("/group")
 public class GroupRest {
     @Autowired
     GroupService groupService;

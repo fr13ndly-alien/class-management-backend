@@ -2,6 +2,7 @@ package com.cm.core.service;
 
 import com.cm.core.entity.User;
 import com.cm.core.repository.UserRepository;
+import com.cm.core.request_object.LoginRequest;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,9 +25,14 @@ public class UserService {
         return userRepository.insert(user);
     }
 
+    public Optional<User> login(LoginRequest req) {
+        // validate password...
+
+        return userRepository.findByEmail(req.getEmail());
+    }
+
     public User updateUser(ObjectId userId, User updatingUser) {
         validateUserExisting(userId);
-//        validateUser(updatingUser);
 
         updatingUser.setId(userId);
 

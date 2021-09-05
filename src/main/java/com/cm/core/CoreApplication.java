@@ -12,9 +12,12 @@ import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @SpringBootApplication
-public class CoreApplication {
+public class CoreApplication extends WebMvcConfigurerAdapter {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CoreApplication.class, args);
@@ -26,17 +29,9 @@ public class CoreApplication {
 		return builder -> builder.serializerByType(ObjectId.class,new ToStringSerializer());
 	}
 
-//	@Bean
-//	public MongoTemplate mongoTemplate(MongoDbFactory mongoDbFactory,
-//									   MongoMappingContext context) {
-//
-//		MappingMongoConverter converter =
-//				new MappingMongoConverter(new DefaultDbRefResolver(mongoDbFactory), context);
-//		converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-//
-//		MongoTemplate mongoTemplate = new MongoTemplate(mongoDbFactory, converter);
-//
-//		return mongoTemplate;
-//	}
-
+	@Override
+	public void addCorsMappings(CorsRegistry registry) {
+		registry.addMapping("/**")
+				.allowedMethods("HEAD", "GET", "PUT", "POST", "DELETE", "PATCH");
+	}
 }

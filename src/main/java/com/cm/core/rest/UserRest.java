@@ -1,6 +1,7 @@
 package com.cm.core.rest;
 
 import com.cm.core.entity.User;
+import com.cm.core.request_object.LoginRequest;
 import com.cm.core.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/v1/user")
+@RequestMapping("/user")
 public class UserRest {
     @Autowired
     private UserService userService;
@@ -23,7 +25,6 @@ public class UserRest {
 
     @GetMapping("/")
     public List<User> getAllUser() {
-
         return userService.getAllUsers();
     }
 
@@ -41,5 +42,11 @@ public class UserRest {
     public HttpStatus deleteUser(@PathVariable String id) {
         userService.deleteUser(new ObjectId(id));
         return HttpStatus.OK;
+    }
+
+
+    @PostMapping("/login")
+    public Optional<User> login(@RequestBody LoginRequest req) {
+        return userService.login(req);
     }
 }
