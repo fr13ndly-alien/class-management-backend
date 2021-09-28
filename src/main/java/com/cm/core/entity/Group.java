@@ -1,5 +1,7 @@
 package com.cm.core.entity;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -8,9 +10,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter @Setter @ToString
 @Document(collection = "group")
@@ -20,32 +20,61 @@ public class Group {
     @Field("_id")
     ObjectId id;
 
-    String teacher;
+    DBObject teacher;
     Set<String> students;
 
     String name;
     String subject;
-    Long price;
-    Set<Schedule> schedule;
+    Integer price;
+    ArrayList<Schedule> schedule;
 
-    public Group(String name, String subject, String teacher, Long price) {
-        this.id = new ObjectId();
-        this.name = name;
-        this.subject = subject;
-        this.teacher = teacher;
-        this.price = price;
-        students = Collections.emptySet();
+
+    public Group(DBObject obj) {
+        validateRequiredFields(obj);
+        this.name = (String) obj.get("name");
+        this.subject = (String) obj.get("subject");
+        this.price = (Integer) obj.get("price");
+
+        if (obj.containsField("student"))
+            setStudents((Set<String>) obj.get("student"));
+
+        if (obj.containsField("teacher")) {
+            HashMap mapObj = (HashMap) obj.get("teacher");
+            setTeacher(new BasicDBObject(mapObj));
+        }
+
+        this.schedule = new ArrayList<>();
+        if (obj.containsField("schedule")) {
+            // todo: BasicDbList
+            ArrayList<LinkedHashMap> listSchedule = (ArrayList<LinkedHashMap>) obj.get("schedule");
+            for (LinkedHashMap mapObj : listSchedule) {
+                Schedule s = new Schedule(new BasicDBObject(mapObj));
+                schedule.add(s);
+            }
+        }
     }
 
-    public void addStudent(String id) {
-        students.add(id);
+    private void validateRequiredFields(DBObject obj) {
+        String[] requiredFields = { "name", "subject", "price" };
+        for (String field : requiredFields) {
+            if (!obj.containsField(field))
+                throw new IllegalStateException("Missing field: " + field);
+        }
+    }
+
+    public void setTeacher(DBObject teacherInfo) throws IllegalStateException {
+        String id = (String) teacherInfo.get("id");
+        String name = (String) teacherInfo.get("name");
+
+        BasicDBObject teacher = new BasicDBObject();
+        teacher.put("id", new ObjectId(id));
+        teacher.put("name", name);
+
+        this.teacher = teacher;
     }
 
     public void addStudents(Set<String> ids) {
         students.addAll(ids);
     }
 
-    public void addStudent(Set<String> ids) {
-        students.addAll(ids);
-    }
 }

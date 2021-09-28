@@ -2,6 +2,7 @@ package com.cm.core.service;
 
 import com.cm.core.entity.Group;
 import com.cm.core.repository.GroupRepository;
+import com.mongodb.DBObject;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -40,6 +41,11 @@ public class GroupService {
         return groupRepository.save(group);
     }
 
+    public Group create(DBObject groupObj) {
+        Group group = new Group(groupObj);
+        return groupRepository.save(group);
+    }
+
     public Group addStudent(String groupId, String studentId) {
         Set<String> studentIds = new HashSet<>();
         studentIds.add(studentId);
@@ -61,9 +67,9 @@ public class GroupService {
         groupRepository.delete(group);
     }
 
-    public Group assignTeacher(String groupId, String teacherId) {
+    public Group assignTeacher(String groupId, DBObject teacher) {
         Group group = getGroup(groupId);
-        group.setTeacher(teacherId);
+        group.setTeacher(teacher);
 
         return mongoTemplate.save(group);
     }

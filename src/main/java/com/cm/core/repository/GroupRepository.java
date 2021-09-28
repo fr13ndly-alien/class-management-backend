@@ -13,6 +13,6 @@ public interface GroupRepository extends MongoRepository<Group, ObjectId> {
     @Query("{ name : ?0 }")
     public Optional<Group> findByName(String name);
 
-    @Query("{ teacher : ?0}")
+    @Query("{ teacher.id : ?0}")
     public List<Group> findByTeacher(String teacherId);
 }
