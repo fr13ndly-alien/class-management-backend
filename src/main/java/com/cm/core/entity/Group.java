@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -20,23 +21,34 @@ public class Group {
     @Field("_id")
     ObjectId id;
 
-    DBObject teacher;
-    Set<String> students;
+    BasicDBObject teacher;
+    ArrayList<String> students;
 
     String name;
     String subject;
     Integer price;
     ArrayList<Schedule> schedule;
 
+    public Group(String name, String subject, BasicDBObject teacher, Integer price, ArrayList<Schedule> schedule, ArrayList<String> students) {
+        this.id = new ObjectId();
+        this.name = name;
+        this.subject = subject;
+        this.teacher = teacher;
+        this.price = price;
+        this.schedule = schedule;
+        this.students = students;
+    }
 
+    @PersistenceConstructor
     public Group(DBObject obj) {
         validateRequiredFields(obj);
+        this.id = new ObjectId();
         this.name = (String) obj.get("name");
         this.subject = (String) obj.get("subject");
         this.price = (Integer) obj.get("price");
 
         if (obj.containsField("student"))
-            setStudents((Set<String>) obj.get("student"));
+            setStudents((ArrayList<String>) obj.get("student"));
 
         if (obj.containsField("teacher")) {
             HashMap mapObj = (HashMap) obj.get("teacher");
