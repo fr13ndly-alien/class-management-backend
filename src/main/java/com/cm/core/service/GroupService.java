@@ -1,8 +1,7 @@
 package com.cm.core.service;
 
 import com.cm.core.entity.Group;
-import com.cm.core.repository.GroupRepository;
-import com.mongodb.DBObject;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -10,76 +9,57 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class GroupService {
     @Autowired
-    GroupRepository groupRepository;
-
-    @Autowired
     MongoTemplate mongoTemplate;
 
-    public List<Group> getAll() { return groupRepository.findAll(); }
+    private final String collectionName = "group";
+    private final Class<Document> groupEntity = Document.class;
 
-    public Optional<Group> findById(String id) {
-        return findById(new ObjectId(id));
+    public Document create(Document groupDoc) {
+        validateAndFixGroup(groupDoc);
+        return mongoTemplate.save(groupDoc, collectionName);
     }
 
-    public Optional<Group> findById(ObjectId id) {
-        return groupRepository.findById(id);
+    private void validateAndFixGroup(Document groupDoc) {
+        String[] requiredFields = {"teacher", "name", "subject"};
+        for ( String field: requiredFields)
+            if (groupDoc.containsKey(field))
+                throw new IllegalStateException("Missing field: " + field);
+
+        groupDoc.append("_id", new ObjectId());
     }
 
-    public List<Group> ofTeacher(String teacherId) {
-        return groupRepository.findByTeacher(teacherId);
-}
-
-    public Group create(Group group) {
-        return groupRepository.save(group);
+    public List<Document> findAll() {
+        return mongoTemplate.findAll(groupEntity, collectionName);
     }
 
-    public Group create(DBObject groupObj) {
-        Group group = new Group(groupObj);
-        return groupRepository.save(group);
+    public Document findById(ObjectId id) {
+        return mongoTemplate.findById(id, groupEntity, collectionName);
     }
 
-    public Group addStudent(String groupId, String studentId) {
-        Set<String> studentIds = new HashSet<>();
-        studentIds.add(studentId);
-
-        // should be HTTP status
-        return addStudents(groupId, studentIds);
+    public List<Document> ofTeacher(String teacherId) {
+        return mongoTemplate.find(queryById("teacher.id", new ObjectId(teacherId)), groupEntity, collectionName);
     }
 
-    public Group addStudents(String groupId, Set<String> studentIds) {
-        Group group = getGroup(groupId);
-        group.addStudents(studentIds);
-
-        // should be HTTP status
-        return mongoTemplate.save(group);
+    public void deleteGroup(String id) {
+        validateExistingGroup(id);
+        mongoTemplate.remove(queryById("id", new ObjectId(id)), collectionName);
     }
 
-    public void deleteGroup(String groupId) {
-        Group group = getGroup(groupId);
-        groupRepository.delete(group);
+    private Query queryById(String path, ObjectId id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where(path).is(id));
+        return query;
     }
 
-    public Group assignTeacher(String groupId, DBObject teacher) {
-        Group group = getGroup(groupId);
-        group.setTeacher(teacher);
-
-        return mongoTemplate.save(group);
-    }
-
-    private Group getGroup(String groupId) {
-        Optional<Group> existingGroup = groupRepository.findById(new ObjectId(groupId));
-        if (!existingGroup.isPresent())
+    private void validateExistingGroup(String groupId) {
+        Document existingGroup = findById(new ObjectId(groupId));
+        if (existingGroup == null)
             throw new IllegalStateException("Group id " + groupId + " not found");
-
-        return existingGroup.get();
     }
 
     public List<Group> findByStudentId(String studentId) {
