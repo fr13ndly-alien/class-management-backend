@@ -1,7 +1,6 @@
 package com.cm.core.service;
 
 import com.cm.core.entity.Centre;
-import com.cm.core.repository.CentreRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

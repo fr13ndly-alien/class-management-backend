@@ -3,6 +3,7 @@ package com.cm.core.rest;
 import com.cm.core.entity.User;
 import com.cm.core.request_object.LoginRequest;
 import com.cm.core.service.UserService;
+import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,29 +25,34 @@ public class UserRest {
     }
 
     @GetMapping("/")
-    public List<User> getAllUser() {
-        return userService.getAllUsers();
+    public List<Document> getAllUser() {
+        return userService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public Document findById(@PathVariable String id) {
+        return userService.findById(new ObjectId(id));
     }
 
     @PostMapping("/")
-    public User addUser(@RequestBody User user) {
-        return userService.addUser(user);
+    public Document addUser(@RequestBody Document user) {
+        return userService.createUser(user);
     }
 
-    @PutMapping("/")
-    public User updateUser(@PathVariable String id, @RequestBody User updateUser) {
+    @PutMapping("/{id}")
+    public Document updateUser(@PathVariable String id, @RequestBody Document updateUser) {
         return userService.updateUser(new ObjectId(id), updateUser);
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping("/{id}")
     public HttpStatus deleteUser(@PathVariable String id) {
-        userService.deleteUser(new ObjectId(id));
+        userService.delete(new ObjectId(id));
         return HttpStatus.OK;
     }
 
 
     @PostMapping("/login")
-    public Optional<User> login(@RequestBody LoginRequest req) {
+    public Document login(@RequestBody LoginRequest req) {
         return userService.login(req);
     }
 }
