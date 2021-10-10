@@ -25,19 +25,19 @@ public class GroupRest {
         return groupService.findById(new ObjectId(groupId));
     }
 
-    @GetMapping("/by-teacher/{teacherId}")
-    List<Document> findByTeacher(@PathVariable String teacherId) {
-        return groupService.ofTeacher(teacherId);
-    }
-
     @PostMapping("/")
     Document createGroup(@RequestBody Document groupDoc) {
         return groupService.create(groupDoc);
     }
 
-    @DeleteMapping("/delete/{groupId}")
+    @DeleteMapping("/{groupId}")
     void deleteGroup(@PathVariable String groupId) {
         groupService.deleteGroup(groupId);
+    }
+
+    @GetMapping("/by-teacher/{teacherId}")
+    List<Document> findByTeacher(@PathVariable String teacherId) {
+        return groupService.ofTeacher(teacherId);
     }
 
 //    @PutMapping("/{groupId}/add-students/")

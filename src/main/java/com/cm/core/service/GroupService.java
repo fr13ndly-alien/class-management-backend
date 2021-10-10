@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -26,10 +27,14 @@ public class GroupService {
 
     private void validateAndFixGroup(Document groupDoc) {
         String[] requiredFields = {"teacher", "name", "subject"};
-        for ( String field: requiredFields)
-            if (groupDoc.containsKey(field))
+        for ( String field: requiredFields) {
+            if (!groupDoc.containsKey(field))
                 throw new IllegalStateException("Missing field: " + field);
+        }
 
+        // todo: extract teacher.id to ObjectId
+        groupDoc.append("createdDate", new Date());
+        groupDoc.append("lastModified", new Date());
         groupDoc.append("_id", new ObjectId());
     }
 
@@ -42,15 +47,19 @@ public class GroupService {
     }
 
     public List<Document> ofTeacher(String teacherId) {
-        return mongoTemplate.find(queryById("teacher.id", new ObjectId(teacherId)), groupEntity, collectionName);
+        return mongoTemplate.find(
+            queryById("teacher.id", teacherId),
+            groupEntity,
+            collectionName
+        );
     }
 
     public void deleteGroup(String id) {
         validateExistingGroup(id);
-        mongoTemplate.remove(queryById("id", new ObjectId(id)), collectionName);
+        mongoTemplate.remove(queryById("_id", new ObjectId(id)), collectionName);
     }
 
-    private Query queryById(String path, ObjectId id) {
+    private Query queryById(String path, Object id) {
         Query query = new Query();
         query.addCriteria(Criteria.where(path).is(id));
         return query;
