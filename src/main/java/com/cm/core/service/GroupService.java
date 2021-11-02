@@ -1,6 +1,7 @@
 package com.cm.core.service;
 
 import com.cm.core.entity.Group;
+import com.cm.core.entity.UserRef;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ public class GroupService {
     @Autowired
     MongoTemplate mongoTemplate;
 
+    @Autowired
+    UserService userService;
+
     private final String collectionName = "group";
     private final Class<Document> groupEntity = Document.class;
 
@@ -32,7 +36,16 @@ public class GroupService {
                 throw new IllegalStateException("Missing field: " + field);
         }
 
-        // todo: extract teacher.id to ObjectId
+        String teacherStrId = groupDoc.getString("teacher");
+        Document foundTeacher = userService.findById(new ObjectId(teacherStrId));
+        groupDoc.replace(
+            "teacher",
+            new UserRef(
+                foundTeacher.getObjectId("_id").toHexString(),
+                foundTeacher.getString("name")
+            )
+        );
+
         groupDoc.append("createdDate", new Date());
         groupDoc.append("lastModified", new Date());
         groupDoc.append("_id", new ObjectId());
